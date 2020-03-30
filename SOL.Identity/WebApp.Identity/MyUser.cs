@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebApp.Identity
 {
-    public class User
+    public class MyUser
     {
         public string Id { get; set; }
         public string UserName { get; set; }
