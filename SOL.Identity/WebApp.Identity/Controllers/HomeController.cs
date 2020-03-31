@@ -18,13 +18,16 @@ namespace WebApp.Identity.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<MyUser> _userManager;
         private readonly IUserClaimsPrincipalFactory<MyUser> _userClaimsPrincipalFactory;
+        private readonly SignInManager<MyUser> _signInManager;
 
         public HomeController(ILogger<HomeController> logger, UserManager<MyUser> userManager, 
-            IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory)
+            IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory,
+            SignInManager<MyUser> signInManager)
         {
             _logger = logger;
             _userManager = userManager;
             _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
+            _signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -55,7 +58,10 @@ namespace WebApp.Identity.Controllers
                     var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
 
                     await HttpContext.SignInAsync("Identity.Application", principal);
+                    //var signInResult = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
 
+                    //if (signInResult.Succeeded)
+                    //{
                     return RedirectToAction("About");
                 }
 
