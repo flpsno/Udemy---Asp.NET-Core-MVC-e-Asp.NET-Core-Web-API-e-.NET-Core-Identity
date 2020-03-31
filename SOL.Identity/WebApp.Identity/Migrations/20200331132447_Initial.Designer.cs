@@ -10,7 +10,7 @@ using WebApp.Identity;
 namespace WebApp.Identity.Migrations
 {
     [DbContext(typeof(MyUserDbContext))]
-    [Migration("20200331130124_Initial")]
+    [Migration("20200331132447_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,6 +176,9 @@ namespace WebApp.Identity.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Member")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NomeCompleto")
                         .HasColumnType("nvarchar(max)");

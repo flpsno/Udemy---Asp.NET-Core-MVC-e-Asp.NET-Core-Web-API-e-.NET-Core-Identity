@@ -19,7 +19,8 @@ namespace WebApp.Identity.Controllers
         private readonly UserManager<MyUser> _userManager;
         private readonly IUserClaimsPrincipalFactory<MyUser> _userClaimsPrincipalFactory;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<MyUser> userManager, IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory)
+        public HomeController(ILogger<HomeController> logger, UserManager<MyUser> userManager, 
+            IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory)
         {
             _logger = logger;
             _userManager = userManager;

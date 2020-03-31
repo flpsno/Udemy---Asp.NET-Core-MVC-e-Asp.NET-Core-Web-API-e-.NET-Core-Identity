@@ -175,6 +175,9 @@ namespace WebApp.Identity.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("Member")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NomeCompleto")
                         .HasColumnType("nvarchar(max)");
 
