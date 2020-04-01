@@ -178,8 +178,17 @@ namespace WebApp.Identity.Controllers
 
                         System.IO.File.WriteAllText("confirmEmailAddress.txt", confirmationEmail);
 
+                    }
+                    else
+                    {
+                        foreach (var erro in result.Errors)
+                        {
+                            ModelState.AddModelError("", erro.Description);
+                        }
+
                         return View();
                     }
+
                 }
 
                 return View("Success");

@@ -39,10 +39,17 @@ namespace WebApp.Identity
             );
 
             services.AddIdentity<MyUser, IdentityRole>(options => {
-                options.SignIn.RequireConfirmedEmail = true;    
+                options.SignIn.RequireConfirmedEmail = true;
+
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
                 })
                 .AddEntityFrameworkStores<MyUserDbContext>()
-                .AddDefaultTokenProviders()                ;
+                .AddDefaultTokenProviders()
+                .AddPasswordValidator<NaoContemValidadorSenha<MyUser>>();
 
             services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
 
