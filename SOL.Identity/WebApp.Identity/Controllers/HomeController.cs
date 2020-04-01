@@ -46,6 +46,74 @@ namespace WebApp.Identity.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var resetURL = Url.Action("ResetPassword", "Home",
+                        new { token, email = model.Email }, Request.Scheme);
+
+                    System.IO.File.WriteAllText("resetLink.txt", resetURL);
+
+                    return View("Success");
+                }
+                else
+                { 
+                    // Aqui você pode colocar falando que o usuário com a informação 
+                    // não foi encontrada
+                }
+            }
+
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            return View(new ResetPasswordModel { Token = token, Email = email });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+                    if (!result.Succeeded)
+                    {
+                        foreach (var erro in result.Errors)
+                        {
+                            ModelState.AddModelError("", erro.Description);
+                        }
+
+                        return View();
+                    }
+
+                    return View("Success");
+                }
+                ModelState.AddModelError("", "Invalid Rquest");
+            }
+            return View();
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {

@@ -36,12 +36,17 @@ namespace WebApp.Identity
 
             services.AddDbContext<MyUserDbContext>(
                 options => options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
-            ); 
+            );
 
             services.AddIdentity<MyUser, IdentityRole>(options => { })
-                .AddEntityFrameworkStores<MyUserDbContext>();
+                .AddEntityFrameworkStores<MyUserDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
+
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+                options.TokenLifespan = TimeSpan.FromHours(3)
+            );
 
             services.ConfigureApplicationCookie(options => 
                 options.LoginPath = "/Home/Login"
