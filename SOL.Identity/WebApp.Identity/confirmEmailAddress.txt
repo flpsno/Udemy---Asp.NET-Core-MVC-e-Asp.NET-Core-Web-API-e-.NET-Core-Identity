@@ -1,0 +1,1 @@
+http://localhost:63394/Home/ConfirmEmailAddress?token=CfDJ8AJnsaEaDX9GoYLpMWXd9LvaMh275oXD4kJJRDNM4tDBh2oJRAhfe1i2o5zR9uR3EFf5EVM%2F2W2XQk4BsHnzRc1e%2BQt%2BKki6mqoSMusq9ON63R%2FrhfnEQeVhr%2FGNq4BoJeM843p6JX8y9pHZ3jU%2BP1dca%2FfTmgz2bfv6oD4a9vpA4ZOn5LjdI3wgdEvVAvFDc5D4cwDbfP8fUbqUvFiLvO7NUBdck3uFz6ea7R%2BdUTQs1YmjkZbyQBqiTMTy%2FhO%2F%2Bg%3D%3D&email=vi@vi.com.br

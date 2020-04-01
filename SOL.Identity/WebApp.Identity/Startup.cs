@@ -38,9 +38,11 @@ namespace WebApp.Identity
                 options => options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
             );
 
-            services.AddIdentity<MyUser, IdentityRole>(options => { })
+            services.AddIdentity<MyUser, IdentityRole>(options => {
+                options.SignIn.RequireConfirmedEmail = true;    
+                })
                 .AddEntityFrameworkStores<MyUserDbContext>()
-                .AddDefaultTokenProviders();
+                .AddDefaultTokenProviders()                ;
 
             services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
 
