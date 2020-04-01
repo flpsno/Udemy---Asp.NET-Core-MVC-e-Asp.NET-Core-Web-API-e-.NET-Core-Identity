@@ -20,7 +20,7 @@ namespace WebApp.Identity.Controllers
         private readonly IUserClaimsPrincipalFactory<MyUser> _userClaimsPrincipalFactory;
         private readonly SignInManager<MyUser> _signInManager;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<MyUser> userManager, 
+        public HomeController(ILogger<HomeController> logger, UserManager<MyUser> userManager,
             IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory,
             SignInManager<MyUser> signInManager)
         {
@@ -70,7 +70,7 @@ namespace WebApp.Identity.Controllers
                     return View("Success");
                 }
                 else
-                { 
+                {
                     // Aqui você pode colocar falando que o usuário com a informação 
                     // não foi encontrada
                 }
@@ -121,22 +121,34 @@ namespace WebApp.Identity.Controllers
             {
                 var user = await _userManager.FindByNameAsync(model.UserName);
 
-                if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+                if (user != null && !await _userManager.IsLockedOutAsync(user))
                 {
-                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    if (await _userManager.CheckPasswordAsync(user, model.Password))
                     {
-                        ModelState.AddModelError("", "E-mail não está válido!");
-                        return View();
+                        if (!await _userManager.IsEmailConfirmedAsync(user))
+                        {
+                            ModelState.AddModelError("", "E-mail não está válido!");
+                            return View();
+                        }
+
+                        await _userManager.ResetAccessFailedCountAsync(user);
+
+                        var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
+
+                        await HttpContext.SignInAsync("Identity.Application", principal);
+                        //var signInResult = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+
+                        //if (signInResult.Succeeded)
+                        //{
+                        return RedirectToAction("About");
                     }
 
-                    var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
+                    await _userManager.AccessFailedAsync(user);
 
-                    await HttpContext.SignInAsync("Identity.Application", principal);
-                    //var signInResult = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
-
-                    //if (signInResult.Succeeded)
-                    //{
-                    return RedirectToAction("About");
+                    if (await _userManager.IsLockedOutAsync(user))
+                    {
+                        // Email deve ser enviado com sugestão de mudança de Senha!
+                    }
                 }
 
                 ModelState.AddModelError("", "Usuário ou Senha Invalida");

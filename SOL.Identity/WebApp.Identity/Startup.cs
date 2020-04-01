@@ -46,6 +46,9 @@ namespace WebApp.Identity
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 4;
+
+                options.Lockout.MaxFailedAccessAttempts = 3;
+                options.Lockout.AllowedForNewUsers = true;
                 })
                 .AddEntityFrameworkStores<MyUserDbContext>()
                 .AddDefaultTokenProviders()
