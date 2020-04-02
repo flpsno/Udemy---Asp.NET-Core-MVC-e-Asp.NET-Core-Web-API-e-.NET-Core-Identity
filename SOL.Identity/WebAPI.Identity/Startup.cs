@@ -5,12 +5,14 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using WebAPI.Domain;
 using WebAPI.Repository;
 
 namespace WebAPI.Identity
@@ -27,9 +29,10 @@ namespace WebAPI.Identity
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-            var connectionString = @"Persist Security Info=False;User ID=sa;Password=#Masterkey0;Initial Catalog=API_Identity;Data Source=localhost\DEV";
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
             var migrationAssembly = typeof(Startup)
                 .GetTypeInfo()
                 .Assembly
@@ -38,6 +41,21 @@ namespace WebAPI.Identity
             services.AddDbContext<Context>(
                 options => options.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
             );
+
+            services.AddIdentity<User, Role>(options => {
+                options.SignIn.RequireConfirmedEmail = true;
+
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
+
+                options.Lockout.MaxFailedAccessAttempts = 3;
+                options.Lockout.AllowedForNewUsers = true;
+            })
+            .AddEntityFrameworkStores<Context>()
+            .AddDefaultTokenProviders();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
