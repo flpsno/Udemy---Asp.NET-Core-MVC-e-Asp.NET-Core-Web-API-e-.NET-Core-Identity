@@ -255,7 +255,7 @@ namespace WebApp.Identity.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> TwoFactor()
+        public IActionResult TwoFactor()
         {
             return View();
         }
