@@ -38,18 +38,44 @@ namespace WebAPI.Identity.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/User
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            return Ok(new UserDto());
         }
 
         // GET: api/User/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(UserLoginDto userLogin)
         {
-            return "value";
+            try
+            {
+                var user = await _userManager.FindByNameAsync(userLogin.UserName);
+
+                var result = await _signInManager.CheckPasswordSignInAsync(user, userLogin.Password, false);
+
+
+                if (result.Succeeded)
+                {
+                    var appUser = await _userManager.Users
+                        .FirstOrDefaultAsync(u => u.NormalizedUserName == user.UserName.ToUpper());
+
+                    var userToReturn = _mapper.Map<UserDto>(appUser);
+
+                    return Ok(new 
+                    { 
+                        token = GenerateJWTToken(appUser).Result,
+                        user = userToReturn
+                    });
+
+                }
+
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"ERRO { ex.Message }");
+            }
         }
 
         // POST: api/User
@@ -58,8 +84,6 @@ namespace WebAPI.Identity.Controllers
         {
             try
             {
-
-
                 var user = await _userManager.FindByNameAsync(userDto.UserName);
 
                 if (user == null)
@@ -67,7 +91,8 @@ namespace WebAPI.Identity.Controllers
                     user = new User
                     {
                         UserName = userDto.UserName,
-                        Email = userDto.UserName
+                        Email = userDto.UserName,
+                        NomeCompleto = userDto.NomeCompleto
                     };
 
                     var result = await _userManager.CreateAsync(
@@ -79,11 +104,11 @@ namespace WebAPI.Identity.Controllers
                             .FirstOrDefaultAsync(u => u.NormalizedUserName == user.UserName.ToUpper());
 
                         var token = GenerateJWTToken(appUser).Result;
-                        var confirmationEmail = Url.Action("ConfirmEmailAddress", "Home",
-                                new { token, email = user.Email }, Request.Scheme);
+                        //var confirmationEmail = Url.Action("ConfirmEmailAddress", "Home",
+                        //        new { token, email = user.Email }, Request.Scheme);
 
-                        System.IO.File.WriteAllText("confirmEmailAddress.txt", confirmationEmail);
-
+                        //System.IO.File.WriteAllText("confirmEmailAddress.txt", confirmationEmail);
+                        return Ok(token);
                     }
 
                 }
@@ -91,7 +116,6 @@ namespace WebAPI.Identity.Controllers
             }
             catch (Exception ex)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, $"ERRO { ex.Message }");
             }
 
