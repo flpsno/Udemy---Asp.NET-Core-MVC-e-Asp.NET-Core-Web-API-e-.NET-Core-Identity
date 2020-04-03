@@ -14,6 +14,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Identity.Controllers
 {
@@ -39,6 +40,7 @@ namespace WebAPI.Identity.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Get()
         {
             return Ok(new UserDto());
@@ -46,6 +48,7 @@ namespace WebAPI.Identity.Controllers
 
         // GET: api/User/5
         [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(UserLoginDto userLogin)
         {
             try
@@ -80,6 +83,7 @@ namespace WebAPI.Identity.Controllers
 
         // POST: api/User
         [HttpPost("Register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(UserDto userDto)
         {
             try
