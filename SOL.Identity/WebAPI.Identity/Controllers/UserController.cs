@@ -27,18 +27,15 @@ namespace WebAPI.Identity.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IMapper _mapper;
 
-        public UserController(IConfiguration config,
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            IMapper mapper
-            )
+        public UserController(IConfiguration config, UserManager<User> userManager,
+                              SignInManager<User> signInManager, IMapper mapper)
         {
             _config = config;
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
         }
-
+        // GET: api/User
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Get()
@@ -55,29 +52,29 @@ namespace WebAPI.Identity.Controllers
             {
                 var user = await _userManager.FindByNameAsync(userLogin.UserName);
 
-                var result = await _signInManager.CheckPasswordSignInAsync(user, userLogin.Password, false);
-
+                var result = await _signInManager
+                    .CheckPasswordSignInAsync(user, userLogin.Password, false);
 
                 if (result.Succeeded)
                 {
                     var appUser = await _userManager.Users
-                        .FirstOrDefaultAsync(u => u.NormalizedUserName == user.UserName.ToUpper());
+                            .FirstOrDefaultAsync(u => u.NormalizedUserName == user.UserName.ToUpper());
 
                     var userToReturn = _mapper.Map<UserDto>(appUser);
 
-                    return Ok(new 
-                    { 
-                        token = GenerateJWTToken(appUser).Result,
+                    return Ok(new
+                    {
+                        token = GenerateJWToken(appUser).Result,
                         user = userToReturn
                     });
-
                 }
 
                 return Unauthorized();
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"ERRO { ex.Message }");
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"ERROR {ex.Message}");
             }
         }
 
@@ -99,35 +96,35 @@ namespace WebAPI.Identity.Controllers
                         NomeCompleto = userDto.NomeCompleto
                     };
 
-                    var result = await _userManager.CreateAsync(
-                        user, userDto.Password);
+                    var result = await _userManager.CreateAsync(user, userDto.Password);
 
                     if (result.Succeeded)
                     {
                         var appUser = await _userManager.Users
                             .FirstOrDefaultAsync(u => u.NormalizedUserName == user.UserName.ToUpper());
 
-                        var token = GenerateJWTToken(appUser).Result;
+                        var token = GenerateJWToken(appUser).Result;
                         //var confirmationEmail = Url.Action("ConfirmEmailAddress", "Home",
-                        //        new { token, email = user.Email }, Request.Scheme);
+                        //    new { token = token, email = user.Email }, Request.Scheme);
 
-                        //System.IO.File.WriteAllText("confirmEmailAddress.txt", confirmationEmail);
+                        //System.IO.File.WriteAllText("confirmationEmail.txt", confirmationEmail);
                         return Ok(token);
                     }
-
                 }
+
                 return Unauthorized();
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"ERRO { ex.Message }");
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"ERROR {ex.Message}");
             }
-
         }
 
-        private async Task<string> GenerateJWTToken(User user)
+        private async Task<string> GenerateJWToken(User user)
         {
-            var claims = new List<Claim> {
+            var claims = new List<Claim>
+            {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName)
             };
@@ -139,7 +136,8 @@ namespace WebAPI.Identity.Controllers
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config.GetSection("AppSettings:Token").Value));
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
+                _config.GetSection("AppSettings:Token").Value));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
